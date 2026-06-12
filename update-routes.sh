@@ -9,7 +9,8 @@ RU_URL="${RU_URL:-https://github.com/xyzmean/radb-tools/releases/download/latest
 FORCE_URL="${FORCE_URL:-https://github.com/xyzmean/m9-routes/releases/download/latest/force-m13.lst}"
 OUT="${OUT:-/etc/nftables.d/wg-pbr.nft}"
 # extra local /32s to keep DIRECT (this node's own public IPs, m9-13)
-LOCAL_KEEP="${LOCAL_KEEP:-45.144.53.1/32}"
+MYIP="$(ip route get 1.1.1.1 2>/dev/null | grep -oP "src \K[0-9.]+" | head -1)"
+LOCAL_KEEP="${LOCAL_KEEP:-45.144.53.1/32${MYIP:+,$MYIP/32}}"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
 curl -fsSL --retry 3 --connect-timeout 15 -o "$TMP/ru.lst"    "$RU_URL"    || { echo "ru list download failed" >&2; exit 1; }
