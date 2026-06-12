@@ -6,7 +6,7 @@
 #   * everything else                     -> mark 0x1 -> m9-13 (foreign exit)
 set -euo pipefail
 RU_URL="${RU_URL:-https://github.com/xyzmean/radb-tools/releases/download/latest/ru_cn_all.lst}"
-FORCE_URL="${FORCE_URL:-https://raw.githubusercontent.com/xyzmean/m9-routes/main/force-m13.lst}"
+FORCE_URL="${FORCE_URL:-https://github.com/xyzmean/m9-routes/releases/download/latest/force-m13.lst}"
 OUT="${OUT:-/etc/nftables.d/wg-pbr.nft}"
 # extra local /32s to keep DIRECT (this node's own public IPs, m9-13)
 LOCAL_KEEP="${LOCAL_KEEP:-45.144.53.1/32}"
