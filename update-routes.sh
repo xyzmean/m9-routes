@@ -6,10 +6,10 @@
 #   * everything else                     -> mark 0x1 -> m9-13 (foreign exit)
 set -euo pipefail
 RU_URL="${RU_URL:-https://github.com/xyzmean/radb-tools/releases/download/latest/ru_cn_all.lst}"
-FORCE_URL="${FORCE_URL:-https://github.com/xyzmean/m9-routes/releases/download/latest/force-m13.lst}"
+FORCE_URL="${FORCE_URL:-https://raw.githubusercontent.com/xyzmean/m9-routes/main/force-m13.lst}"
 OUT="${OUT:-/etc/nftables.d/wg-pbr.nft}"
 # extra local /32s to keep DIRECT (this node's own public IPs, m9-13)
-MYIP="$(ip route get 1.1.1.1 2>/dev/null | grep -oP "src \K[0-9.]+" | head -1)"
+MYIP="$(ip route get 1.1.1.1 2>/dev/null | grep -oP "src \K[0-9.]+" | head -1 || true)"
 LOCAL_KEEP="${LOCAL_KEEP:-45.144.53.1/32${MYIP:+,$MYIP/32}}"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
@@ -47,8 +47,7 @@ $FORCE_EL
         flags interval
         auto-merge
         elements = {
-            0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8,
-            169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16, 224.0.0.0/4,
+            0.0.0.0/8, 224.0.0.0/4,
 $KEEP_EL
 $RU_EL
         }
