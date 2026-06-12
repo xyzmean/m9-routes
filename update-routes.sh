@@ -14,7 +14,13 @@ LOCAL_KEEP="${LOCAL_KEEP:-45.144.53.1/32${MYIP:+,$MYIP/32}}"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
 curl -fsSL --retry 3 --connect-timeout 15 -o "$TMP/ru.lst"    "$RU_URL"    || { echo "ru list download failed" >&2; exit 1; }
-curl -fsSL --retry 3 --connect-timeout 15 -o "$TMP/force.lst" "$FORCE_URL" || { echo "force list download failed" >&2; exit 1; }
+
+FORCE_FILE="${FORCE_FILE:-$(dirname "$0")/force-m13.lst}"
+if [ -f "$FORCE_FILE" ]; then
+    cp "$FORCE_FILE" "$TMP/force.lst"
+else
+    curl -fsSL --retry 3 --connect-timeout 15 -o "$TMP/force.lst" "$FORCE_URL" || { echo "force list download failed" >&2; exit 1; }
+fi
 
 RU="$(grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(/[0-9]+)?$' "$TMP/ru.lst" || true)"
 FORCE="$(grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(/[0-9]+)?$' "$TMP/force.lst" || true)"
