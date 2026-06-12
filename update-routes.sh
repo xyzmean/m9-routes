@@ -8,9 +8,12 @@ set -euo pipefail
 RU_URL="${RU_URL:-https://github.com/xyzmean/radb-tools/releases/download/latest/ru_cn_all.lst}"
 FORCE_URL="${FORCE_URL:-https://raw.githubusercontent.com/xyzmean/m9-routes/main/force-m13.lst}"
 OUT="${OUT:-/etc/nftables.d/wg-pbr.nft}"
-# extra local /32s to keep DIRECT (this node's own public IPs, m9-13)
+# extra nets to keep DIRECT: this node's own public IPs (m9-13) and the WG mesh
+# itself — without 10.8.0.0/16 client↔client / client↔gateway traffic would be
+# marked for the m9-13 transit and blackhole. The hoster's other RFC1918 ranges
+# stay OUT of direct on purpose (clients must not reach them).
 MYIP="$(ip route get 1.1.1.1 2>/dev/null | grep -oP "src \K[0-9.]+" | head -1 || true)"
-LOCAL_KEEP="${LOCAL_KEEP:-45.144.53.1/32${MYIP:+,$MYIP/32}}"
+LOCAL_KEEP="${LOCAL_KEEP:-45.144.53.1/32,10.8.0.0/16${MYIP:+,$MYIP/32}}"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
 curl -fsSL --retry 3 --connect-timeout 15 -o "$TMP/ru.lst"    "$RU_URL"    || { echo "ru list download failed" >&2; exit 1; }
