@@ -63,7 +63,11 @@ $RU_EL
     }
     chain prerouting {
         type filter hook prerouting priority mangle; policy accept;
-        iifname != "wg0" return
+        iifname "wg0" goto mark_traffic
+        iifname "m9*" goto mark_traffic
+        return
+    }
+    chain mark_traffic {
         ip daddr @force_m13 meta mark set 0x1 counter return
         ip daddr @direct4 counter return
         meta mark set 0x1 counter
